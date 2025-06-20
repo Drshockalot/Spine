@@ -1,0 +1,19 @@
+# Spine Workspace Configuration
+# This file defines automatic linking behavior for this workspace
+
+[auto_link]
+# Enable automatic linking based on patterns
+enabled = true
+
+# Patterns of packages to automatically include
+# Supports simple glob patterns with * wildcard
+patterns = [
+    "@highfieldabc/*",
+    "shared-*"
+]
+
+# Patterns to exclude (takes priority over includes)
+exclude = [
+    "@highfieldabc/legacy-*",
+    "test-*"
+]
