@@ -2,6 +2,7 @@ use std::process::Command;
 use anyhow::Result;
 use crate::config::Config;
 use crate::workspace::WorkspaceManager;
+use crate::platform::Platform;
 
 pub struct Scanner;
 
@@ -197,45 +198,17 @@ impl Scanner {
         }
 
         // Fallback: try opening with system default
-        #[cfg(target_os = "macos")]
-        {
-            let result = Command::new("open")
-                .arg(&config_path)
-                .status();
-            
-            if let Ok(status) = result {
-                if status.success() {
-                    println!("Configuration file opened with system default application.");
-                    return Ok(());
-                }
+        // Use cross-platform file opening
+        match Platform::open_file_with_default_app(&config_path) {
+            Ok(status) if status.success() => {
+                println!("Configuration file opened with system default application.");
+                return Ok(());
             }
-        }
-
-        #[cfg(target_os = "linux")]
-        {
-            let result = Command::new("xdg-open")
-                .arg(&config_path)
-                .status();
-            
-            if let Ok(status) = result {
-                if status.success() {
-                    println!("Configuration file opened with system default application.");
-                    return Ok(());
-                }
+            Ok(_) => {
+                println!("Failed to open configuration file with default application.");
             }
-        }
-
-        #[cfg(target_os = "windows")]
-        {
-            let result = Command::new("start")
-                .arg(&config_path)
-                .status();
-            
-            if let Ok(status) = result {
-                if status.success() {
-                    println!("Configuration file opened with system default application.");
-                    return Ok(());
-                }
+            Err(e) => {
+                println!("Error opening configuration file: {}", e);
             }
         }
 

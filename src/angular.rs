@@ -7,6 +7,7 @@ use std::process::{Command, Stdio};
 use std::time::Instant;
 use crate::config::Config;
 use crate::error::SpineError;
+use crate::platform::Platform;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AngularWorkspace {
@@ -199,7 +200,7 @@ impl AngularBuildManager {
 
         println!("Building library: {}{}", actual_library_name, if watch { " (watch mode)" } else { "" });
 
-        let mut cmd = Command::new("ng");
+        let mut cmd = Platform::ng_command();
         cmd.arg("build")
            .arg(&actual_library_name)
            .current_dir(&self.workspace_root);
@@ -608,7 +609,7 @@ pub fn publish_command(config: &Config, package_name: &str, skip_build: bool, dr
     }
 
     // Step 3: Run npm publish
-    let mut cmd = Command::new("npm");
+    let mut cmd = Platform::npm_command();
     cmd.arg("publish")
        .current_dir(&publish_dir);
 

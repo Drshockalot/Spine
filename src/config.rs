@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use clap::CommandFactory;
 use crate::error::SpineError;
+use crate::platform::Platform;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PackageLink {
@@ -267,7 +268,7 @@ impl Config {
         self.completion.auto_regenerate = true;
         
         // Detect shell if not provided
-        let detected_shell = shell.or_else(|| Self::detect_current_shell());
+        let detected_shell = shell.or_else(|| Platform::detect_current_shell());
         self.completion.shell = detected_shell.clone();
         
         // Set default script path if not provided
@@ -340,47 +341,11 @@ impl Config {
         Ok(())
     }
     
-    fn detect_current_shell() -> Option<String> {
-        // Check SHELL environment variable
-        if let Ok(shell_path) = std::env::var("SHELL") {
-            if let Some(shell_name) = Path::new(&shell_path).file_name() {
-                if let Some(shell_str) = shell_name.to_str() {
-                    match shell_str {
-                        "bash" => return Some("bash".to_string()),
-                        "zsh" => return Some("zsh".to_string()),
-                        "fish" => return Some("fish".to_string()),
-                        "pwsh" | "powershell" => return Some("powershell".to_string()),
-                        _ => {}
-                    }
-                }
-            }
-        }
-        
-        // Check parent process name as fallback
-        if let Ok(_ppid) = std::env::var("PPID") {
-            // This is a basic fallback - could be enhanced with process detection
-            return None;
-        }
-        
-        None
-    }
+    // Moved to platform.rs - use Platform::detect_current_shell() instead
     
     fn get_default_completion_path(shell: &str) -> Option<PathBuf> {
         let home_dir = dirs::home_dir()?;
-        
-        match shell {
-            "bash" => Some(home_dir.join(".spine_completion.bash")),
-            "zsh" => Some(home_dir.join(".spine_completion.zsh")),
-            "fish" => {
-                if let Some(config_dir) = dirs::config_dir() {
-                    Some(config_dir.join("fish/completions/spine.fish"))
-                } else {
-                    Some(home_dir.join(".config/fish/completions/spine.fish"))
-                }
-            },
-            "powershell" => Some(home_dir.join("spine_completion.ps1")),
-            _ => Some(home_dir.join(format!(".spine_completion.{}", shell))),
-        }
+        Platform::get_completion_script_path(shell, &home_dir)
     }
 }
 
