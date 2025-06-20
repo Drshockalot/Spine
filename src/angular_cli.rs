@@ -11,6 +11,7 @@ use std::time::Duration;
 use crate::angular::{AngularBuildManager, AngularWorkspace};
 use crate::config::Config;
 use crate::error::SpineError;
+use crate::platform::Platform;
 
 pub struct AngularCliIntegration {
     workspace: AngularWorkspace,
@@ -37,7 +38,7 @@ impl AngularCliIntegration {
         lib: Option<&str>,
         args: Vec<String>,
     ) -> Result<()> {
-        let mut cmd = Command::new("ng");
+        let mut cmd = Platform::ng_command();
         cmd.arg("generate")
            .arg(schematic)
            .arg(name)
@@ -329,7 +330,7 @@ impl NgProxy {
         
         let enhanced_args = self.enhance_ng_command(args)?;
         
-        let mut cmd = Command::new("ng");
+        let mut cmd = Platform::ng_command();
         cmd.args(enhanced_args)
            .current_dir(&self.workspace_root)
            .env("NG_CLI_ANALYTICS", "false");
@@ -752,7 +753,7 @@ impl LibraryWatchServer {
 
     fn start_library_watchers(&mut self) -> Result<()> {
         for lib_info in &self.linked_libraries {
-            let mut cmd = Command::new("ng");
+            let mut cmd = Platform::ng_command();
             cmd.args(&["build", &lib_info.library_name, "--watch"])
                .current_dir(&lib_info.workspace_root)
                .stdout(Stdio::piped())
@@ -862,7 +863,7 @@ impl LibraryWatchServer {
     }
 
     fn start_app_server(&mut self, port: u16, hmr: bool) -> Result<()> {
-        let mut cmd = Command::new("ng");
+        let mut cmd = Platform::ng_command();
         cmd.args(&["serve", &self.app_project])
            .args(&["--port", &port.to_string()])
            .args(&["--host", "0.0.0.0"])

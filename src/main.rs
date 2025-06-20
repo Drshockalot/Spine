@@ -6,6 +6,7 @@ mod config;
 mod error;
 mod npm;
 mod package;
+mod platform;
 mod scanner;
 mod tui;
 mod workspace;

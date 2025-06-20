@@ -1,8 +1,8 @@
-use std::process::Command;
 use std::path::Path;
 use anyhow::Result;
 use crate::config::Config;
 use crate::error::SpineError;
+use crate::platform::Platform;
 
 pub struct NpmManager;
 
@@ -77,7 +77,7 @@ impl NpmManager {
     pub fn unlink_package(config: &mut Config, package_name: &str) -> Result<()> {
         println!("Unlinking package: {}", package_name);
         
-        let output = Command::new("npm")
+        let output = Platform::npm_command()
             .args(&["unlink", package_name])
             .output()
             .map_err(|e| SpineError::Io(e))?;
@@ -125,7 +125,7 @@ impl NpmManager {
             if config.links.contains_key(package_name) {
                 print!("  🔗 Unlinking {}... ", package_name);
                 
-                let output = std::process::Command::new("npm")
+                let output = Platform::npm_command()
                     .args(&["unlink", package_name])
                     .output()
                     .map_err(|e| crate::error::SpineError::Io(e))?;
@@ -227,7 +227,7 @@ impl NpmManager {
     }
 
     pub fn npm_link_static(package_path: &Path) -> Result<()> {
-        let output = Command::new("npm")
+        let output = Platform::npm_command()
             .args(&["link", &package_path.to_string_lossy()])
             .output()
             .map_err(|e| SpineError::Io(e))?;
