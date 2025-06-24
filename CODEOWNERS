@@ -1,0 +1,24 @@
+# Global code ownership - all changes require approval from repository owner
+* @Drshockalot
+
+# Source code - extra protection for core functionality
+/src/ @Drshockalot
+/src/**/*.rs @Drshockalot
+
+# Configuration and build files
+/Cargo.toml @Drshockalot
+/Cargo.lock @Drshockalot
+
+# Documentation - maintain quality and consistency
+/README.md @Drshockalot
+/CLAUDE.md @Drshockalot
+
+# GitHub workflows and repository configuration
+/.github/ @Drshockalot
+/.github/**/* @Drshockalot
+
+# Git configuration
+/.gitignore @Drshockalot
+
+# This file itself - prevent unauthorized changes to ownership
+/CODEOWNERS @Drshockalot
